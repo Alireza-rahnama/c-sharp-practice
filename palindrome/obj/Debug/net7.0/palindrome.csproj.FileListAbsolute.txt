@@ -1,0 +1,15 @@
+/Users/alirezarahnama/projects/c-sharp-codes/palindrome/bin/Debug/net7.0/palindrome
+/Users/alirezarahnama/projects/c-sharp-codes/palindrome/bin/Debug/net7.0/palindrome.deps.json
+/Users/alirezarahnama/projects/c-sharp-codes/palindrome/bin/Debug/net7.0/palindrome.runtimeconfig.json
+/Users/alirezarahnama/projects/c-sharp-codes/palindrome/bin/Debug/net7.0/palindrome.dll
+/Users/alirezarahnama/projects/c-sharp-codes/palindrome/bin/Debug/net7.0/palindrome.pdb
+/Users/alirezarahnama/projects/c-sharp-codes/palindrome/obj/Debug/net7.0/palindrome.csproj.AssemblyReference.cache
+/Users/alirezarahnama/projects/c-sharp-codes/palindrome/obj/Debug/net7.0/palindrome.GeneratedMSBuildEditorConfig.editorconfig
+/Users/alirezarahnama/projects/c-sharp-codes/palindrome/obj/Debug/net7.0/palindrome.AssemblyInfoInputs.cache
+/Users/alirezarahnama/projects/c-sharp-codes/palindrome/obj/Debug/net7.0/palindrome.AssemblyInfo.cs
+/Users/alirezarahnama/projects/c-sharp-codes/palindrome/obj/Debug/net7.0/palindrome.csproj.CoreCompileInputs.cache
+/Users/alirezarahnama/projects/c-sharp-codes/palindrome/obj/Debug/net7.0/palindrome.dll
+/Users/alirezarahnama/projects/c-sharp-codes/palindrome/obj/Debug/net7.0/refint/palindrome.dll
+/Users/alirezarahnama/projects/c-sharp-codes/palindrome/obj/Debug/net7.0/palindrome.pdb
+/Users/alirezarahnama/projects/c-sharp-codes/palindrome/obj/Debug/net7.0/palindrome.genruntimeconfig.cache
+/Users/alirezarahnama/projects/c-sharp-codes/palindrome/obj/Debug/net7.0/ref/palindrome.dll
