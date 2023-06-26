@@ -17,22 +17,12 @@ namespace myCSharpPracticeProjects
         static void Main(string[] args)
         {
             string input;
-            bool shouldContinue = true;
             bool isPalindrome;
 
-            while (shouldContinue)
+            Console.WriteLine("Enter a string or exit to quit the program!");
+            input = Console.ReadLine();
+            while (input.ToLower() != "quit")
             {
-
-                Console.WriteLine("Enter  a string or exit to quit the program!");
-
-                input = Console.ReadLine();
-
-                if (input.ToLower() == "quit")
-                {
-                    shouldContinue = false;
-                    break;
-                }
-
                 string newInput = "";
                 string reversedInput = "";
 
@@ -60,10 +50,11 @@ namespace myCSharpPracticeProjects
                 isPalindrome = newInput.ToLower().Equals(reversedInput.ToLower()) ? true : false;
 
                 Console.WriteLine(reversedInput.ToLower());
-                Console.WriteLine($"is Palindrome: {{{isPalindrome}}}");
+                Console.WriteLine($"is Palindrome: {isPalindrome}");
+
+                Console.WriteLine("Enter a string or exit to quit the program!");
+                input = Console.ReadLine();
             }
         }
-
     }
-
 }
