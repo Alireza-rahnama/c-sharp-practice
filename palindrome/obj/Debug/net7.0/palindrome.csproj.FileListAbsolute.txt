@@ -13,3 +13,4 @@
 /Users/alirezarahnama/projects/c-sharp-codes/palindrome/obj/Debug/net7.0/palindrome.pdb
 /Users/alirezarahnama/projects/c-sharp-codes/palindrome/obj/Debug/net7.0/palindrome.genruntimeconfig.cache
 /Users/alirezarahnama/projects/c-sharp-codes/palindrome/obj/Debug/net7.0/ref/palindrome.dll
+/Users/alirezarahnama/projects/c-sharp-codes/palindrome/bin/Debug/net7.0/palindrome.xml

@@ -1,9 +1,19 @@
-﻿using System.Text;
-using System.Runtime.InteropServices.ComTypes;
+﻿
 namespace myCSharpPracticeProjects
 {
-    public class Palindrome
+    ///<summary>
+    ///this code will accept a string from the terminal and checks wether it 
+    ///it reads the same backward as forward. It ignores any special character or white spaces.
+    ///</summary>
+    class Palindrome
     {
+        ///<summary>
+        ///main method to execute the palindrom logic.
+        ///</summary>
+
+        ///<param name="args">
+        ///an array of strings reading from the terminal
+        ///</param>
         static void Main(string[] args)
         {
             string input;
@@ -13,18 +23,24 @@ namespace myCSharpPracticeProjects
             while (shouldContinue)
             {
 
-                Console.WriteLine("Enter a string or exit to quit the program!");
+                Console.WriteLine("Enter  a string or exit to quit the program!");
 
                 input = Console.ReadLine();
-                string newInput = "";
 
+                if (input.ToLower() == "quit")
+                {
+                    shouldContinue = false;
+                    break;
+                }
+
+                string newInput = "";
                 string reversedInput = "";
 
-
-                foreach(char character in  input){
+                foreach (char character in input)
+                {
                     if (!char.IsPunctuation(character) && !char.IsWhiteSpace(character))
                     {
-                        newInput+=character;   
+                        newInput += character;
                     }
                 }
 
@@ -36,27 +52,16 @@ namespace myCSharpPracticeProjects
 
                     if (!char.IsPunctuation(character) && !char.IsWhiteSpace(character))
                     {
-                        reversedInput+=character;   
+                        reversedInput += character;
                     }
                     stringIndex--;
                 }
 
-                
                 isPalindrome = newInput.ToLower().Equals(reversedInput.ToLower()) ? true : false;
 
                 Console.WriteLine(reversedInput.ToLower());
                 Console.WriteLine($"is Palindrome: {{{isPalindrome}}}");
-
-                if (input.ToLower() == "quit")
-                {
-                    shouldContinue = false;
-                    break;
-                }
-
             }
-
-
-
         }
 
     }

@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>palindrome</name>
+    </assembly>
+    <members>
+        <member name="T:myCSharpPracticeProjects.Palindrome">
+            <summary>
+            this code will accept a string from the terminal and checks wether it 
+            it reads the same backward as forward. It ignores any special character or white spaces.
+            </summary>
+        </member>
+        <member name="M:myCSharpPracticeProjects.Palindrome.Main(System.String[])">
+            <summary>
+            main method to execute the palindrom logic.
+            </summary>
+            <param name="args">
+            an array of strings reading from the terminal
+            </param>
+        </member>
+    </members>
+</doc>
