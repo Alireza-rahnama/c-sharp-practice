@@ -71,3 +71,7 @@ artifacts/
 # Build Folders (you can add more)
 [Bb]uild/
 [Nn]ode_modules/
+
+
+#environment variables
+.env

@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using MongoDB.Driver;
+using MongoDB.Bson;
+using DotNetEnv;
 
 namespace WineInformationApp
 {
@@ -35,9 +38,12 @@ namespace WineInformationApp
             // Console.ReadKey();
             ChardonnayWine chardonnay = new ChardonnayWine();
             chardonnay.getDescription();
-            Console.WriteLine("Name the characteristics you would like in your wine and hit enter:");
-            String desiredCharacteristics = Console.ReadLine();
-            chardonnay.MatchesCharacteristics(desiredCharacteristics);
+            CreateDataBaseGate createDataBaseGate = new CreateDataBaseGate();
+            createDataBaseGate.InsertNewWine(chardonnay);
+
+            // Console.WriteLine("Name the characteristics you would like in your wine and hit enter:");
+            // String desiredCharacteristics = Console.ReadLine();
+            // chardonnay.MatchesCharacteristics(desiredCharacteristics);
             Console.WriteLine("Press any key to exit...");
             Console.ReadKey();
         }
@@ -46,7 +52,7 @@ namespace WineInformationApp
     }
 
     // Enum to represent the wine types
-    enum WineType
+    public enum WineType
     {
         Red,
         White,
@@ -54,7 +60,7 @@ namespace WineInformationApp
     }
 
     // Class to represent a Wine
-    class Wine
+    public class Wine
     {
         public string Name { get; set; }
         public WineType Type { get; set; }
@@ -73,8 +79,10 @@ namespace WineInformationApp
         public bool MatchesCharacteristics(string characteristic)
         {
             Boolean doesMatch = false;
-            foreach (string word in Characteristics.Split(",")){
-                if(word==characteristic){
+            foreach (string word in Characteristics.Split(","))
+            {
+                if (word == characteristic)
+                {
                     Console.WriteLine($"{Name} is {characteristic}");
                     doesMatch = true;
                 }
@@ -97,5 +105,85 @@ namespace WineInformationApp
             Console.WriteLine($"{Name} is {Type} wine, with {BestServingTemperature} degrees best serving temperature and has {Characteristics} characteristics.");
         }
     }
+
+    public class CreateDataBaseGate
+    {
+        IMongoCollection<BsonDocument> collection;
+
+        public CreateDataBaseGate(){
+        DotNetEnv.Env.Load();
+        DotNetEnv.Env.TraversePath().Load();
+
+        string connectionUri = DotNetEnv.Env.GetString("MONGO_URI2", "MONGO_URI not found");
+
+        MongoClientSettings settings = MongoClientSettings.FromConnectionString(connectionUri);
+        // Set the ServerApi field of the settings object to Stable API version 1
+        var serverApi = settings.ServerApi = new ServerApi(ServerApiVersion.V1);
+        // Create a new client and connect to the server
+        MongoClient client = new MongoClient(settings);
+
+        var wineInfoDatabase = client.GetDatabase("WineInformationApp");
+        // Send a ping to confirm a successful connection
+        // try {
+        //      var wineInfoDatabase = client.GetDatabase("WineInformationApp").RunCommand<BsonDocument>(new BsonDocument("ping", 1));
+        //      Console.WriteLine("Pinged your deployment. You successfully connected to MongoDB!");
+        // } catch (Exception ex) {
+        // Console.WriteLine(ex);
+        // }
+
+        // Access the collection
+        collection = wineInfoDatabase.GetCollection<BsonDocument>("wine-characteristics");
+        }
+
+        public void InsertNewWine(Wine newWine){
+            // Create a document
+            var newWineDocument = new BsonDocument
+            {
+                { "name", $"{newWine.Name}" },
+                { "type", $"{newWine.Type}" },
+                { "bestServingTemperature", $"{newWine.BestServingTemperature}" },
+                { "characteristics", $"{newWine.Characteristics}" },
+            };
+
+            // Insert the document into the collection
+            collection.InsertOne(newWineDocument);
+            Console.WriteLine("Document inserted.");
+        }
+
+        public void getWineInfoByName(string wineName){
+
+            // Retrieve documents from the collection
+            var filter = Builders<BsonDocument>.Filter.Eq("name", $"{wineName}");
+            var documents = collection.Find(filter).ToList();
+            Console.WriteLine("Retrieved documents:");
+
+            foreach (var doc in documents)
+            {
+                Console.WriteLine(doc);
+            }
+        }
+
+        public void updateWineCharacteristicsByName(string wineName, string newCharacteristics ){
+             // Update a document in the collection
+            var updateFilter = Builders<BsonDocument>.Filter.Eq("name", $"{wineName}");
+            var update = Builders<BsonDocument>.Update.Set("characteristics", $"{newCharacteristics}");
+            collection.UpdateOne(updateFilter, update);
+            Console.WriteLine($"{wineName}'s characteristics were updated successfully.");
+
+            // Delete a document from the collection
+            var deleteFilter = Builders<BsonDocument>.Filter.Eq("name", "John Doe");
+            collection.DeleteOne(deleteFilter);
+            Console.WriteLine("Document deleted.");
+        }
+
+        public void deleteWineByName(string wineName){
+            // Delete a document from the collection
+            var deleteFilter = Builders<BsonDocument>.Filter.Eq("name", $"{wineName}");
+            collection.DeleteOne(deleteFilter);
+            Console.WriteLine($"{wineName} deleted successfully.");
+        }
+    }
+
+
 }
 
