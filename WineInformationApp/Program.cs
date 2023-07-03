@@ -1,4 +1,5 @@
-﻿using System.Reflection.PortableExecutable;
+﻿using System.Numerics;
+using System.Reflection.PortableExecutable;
 using System;
 using System.Collections.Generic;
 using MongoDB.Driver;
@@ -47,7 +48,9 @@ namespace WineInformationApp
 
             CreateDataBaseGateway2 createDataBaseGate2 = new CreateDataBaseGateway2();
 
-            createDataBaseGate2.getWineInfoByCharacteristics(searchFilter).Wait();
+            // createDataBaseGate2.getWineInfoByCharacteristics(searchFilter).Wait();
+
+            createDataBaseGate2.getWineInfoByTitle("Chardonnay").Wait();
 
 
             // Console.WriteLine("Name the characteristics you would like in your wine and hit enter:");
@@ -261,7 +264,7 @@ namespace WineInformationApp
         {
 
             // Retrieve documents from the collection
-            var filter = Builders<BsonDocument>.Filter.Eq("name", $"{wineName}");
+            var filter = Builders<BsonDocument>.Filter.Eq("$title", $"{wineName}");
             var documents = collection.Find(filter).ToList();
             Console.WriteLine("Retrieved documents:");
 
@@ -314,6 +317,44 @@ namespace WineInformationApp
                             if (wineDescription.Contains(inputChar))
                             {
                                 Console.WriteLine($"We Found a match in our database. You should try {wineName}. {wineDescription}");
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }   
+
+
+        public async Task getWineInfoByTitle(string inputWineTitle)
+        {
+            var projection = Builders<BsonDocument>.Projection.Include("title").Include("description").Include("points");
+            // var filter = Builders<BsonDocument>.Filter.StringIn("title", inputWineTitle);
+            var filter = Builders<BsonDocument>.Filter.Empty;
+            var options = new FindOptions<BsonDocument, BsonDocument> { Projection = projection };
+
+            using (var cursor = await collection.FindAsync(filter, options))
+            {
+                string[] inputWineTitleList = inputWineTitle.ToLower().Split(" ");
+                // foreach(string title in inputWineTitleList){
+                //     inputCharacteristicsToLower.Add(characteristic.ToLower());
+                // }
+
+                while (await cursor.MoveNextAsync())
+                {
+                    var batch = cursor.Current;
+                    foreach (var doc in batch)
+                    {
+                        var wineDescription = doc["description"].AsString.ToLower();
+                        var wineTitle = doc["title"].AsString;
+                        var stringPoints = doc["points"].AsString;
+                        var points = int.Parse(stringPoints);
+                        
+                        foreach (var inputTitle in inputWineTitleList)
+                        {
+                            if (wineTitle.Contains(inputWineTitle) && points >= 90)
+                            {
+                                Console.WriteLine($"We Found a match in our database. You should try {wineTitle} with {points} review points.");
                                 break;
                             }
                         }
