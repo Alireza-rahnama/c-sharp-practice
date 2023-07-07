@@ -5,6 +5,10 @@ using System.Collections.Generic;
 using MongoDB.Driver;
 using MongoDB.Bson;
 using DotNetEnv;
+using Humanizer;
+using System.Net.Http;
+using Newtonsoft.Json;
+
 
 namespace WineInformationApp
 {
@@ -47,11 +51,15 @@ namespace WineInformationApp
             // createDataBaseGate.getWineInfoByCharacteristics(searchFilter).Wait();
 
             CreateDataBaseGateway2 createDataBaseGate2 = new CreateDataBaseGateway2();
+            // Task.Run(async () => await createDataBaseGate2.UpdateWineImageUrlAsync()).Wait();
+
 
             // createDataBaseGate2.getWineInfoByCharacteristics(searchFilter).Wait();
 
-            createDataBaseGate2.getWineInfoByTitle("Chardonnay").Wait();
+            // createDataBaseGate2.getWineInfoByTitle("Chardonnay").Wait();
+            // Task.Run(async () => await DataCollector.FindWineBottleImageUrl("Terre di Giurfo 2011 Mascaria Barricato  (Cerasuolo di Vittoria)")).Wait();
 
+            Task.Run(async () => await createDataBaseGate2.UpdateSingleWineImageUrlAsync("Terre di Giurfo 2011 Mascaria Barricato  (Cerasuolo di Vittoria)")).Wait();
 
             // Console.WriteLine("Name the characteristics you would like in your wine and hit enter:");
             // String desiredCharacteristics = Console.ReadLine();
@@ -196,7 +204,8 @@ namespace WineInformationApp
             using (var cursor = await collection.FindAsync(filter, options))
             {
                 List<string> inputCharacteristicsToLower = new List<string>();
-                foreach(string characteristic in inputCharacteristics){
+                foreach (string characteristic in inputCharacteristics)
+                {
                     inputCharacteristicsToLower.Add(characteristic.ToLower());
                 }
 
@@ -207,7 +216,7 @@ namespace WineInformationApp
                     {
                         var characteristics = doc["characteristics"].AsString.ToLower();
                         var wineName = doc["name"].AsString;
-                        
+
                         foreach (var inputChar in inputCharacteristics)
                         {
                             if (characteristics.Contains(inputChar))
@@ -219,7 +228,7 @@ namespace WineInformationApp
                     }
                 }
             }
-        }   
+        }
     }
 
     public class CreateDataBaseGateway2
@@ -283,13 +292,80 @@ namespace WineInformationApp
         //     Console.WriteLine($"{wineName}'s characteristics were updated successfully.");
         // }
 
-        // public void deleteWineByName(string wineName)
-        // {
-        //     // Delete a document from the collection
-        //     var deleteFilter = Builders<BsonDocument>.Filter.Eq("name", $"{wineName}");
-        //     collection.DeleteOne(deleteFilter);
-        //     Console.WriteLine($"{wineName} deleted successfully.");
-        // }
+        public void PopulateAllWineImageUrlinDatabase()
+        {
+            // Retrieve all documents in the collection
+            var documents = collection.Find(FilterDefinition<BsonDocument>.Empty).ToList();
+            DataCollector dataCollector = new DataCollector();
+
+            // Loop through the documents
+            foreach (var document in documents)
+            {
+                // Access document fields and perform desired operations
+                var title = document["title"].AsString;
+
+                var wineImageUrl = DataCollector.FindWineBottleImageUrl(title).ToString();
+
+                // Create an update definition to set the new key-value pair
+                var updateDefinition = Builders<BsonDocument>.Update.Set("wine_image_url", wineImageUrl);
+
+                // Update the document in the collection
+                var updateResult = collection.UpdateOne(
+                    Builders<BsonDocument>.Filter.Eq("_id", document["_id"]),
+                    updateDefinition
+                );
+
+                Console.WriteLine($"Modified documents: {updateResult.ModifiedCount}");
+            }
+        }
+
+        public async Task UpdateWineImageUrlAsync()
+        {
+            // Retrieve all documents in the collection
+            var documents = collection.Find(FilterDefinition<BsonDocument>.Empty).ToList();
+
+            // Loop through the documents
+            foreach (var document in documents)
+            {
+                var wineImageUrl = DataCollector.FindWineBottleImageUrl(document.GetValue("title", "").AsString);
+
+                // Create an update definition to set the new key-value pair
+                var updateDefinition = Builders<BsonDocument>.Update.Set("wine_image_url", wineImageUrl);
+
+                // Update the document in the collection
+                var updateResult = collection.UpdateOne(
+                    Builders<BsonDocument>.Filter.Eq("_id", document["_id"]),
+                    updateDefinition
+                );
+
+                Console.WriteLine($"Modified documents: {updateResult.ModifiedCount}");
+            }
+        }
+
+        public async Task UpdateSingleWineImageUrlAsync(String wineTitle)
+        {
+            // Retrieve documents from the collection
+            var filter = Builders<BsonDocument>.Filter.Eq("title", $"{wineTitle}");
+            var documents = collection.Find(filter).ToList();
+            var wineImageUrl = DataCollector.FindWineBottleImageUrl(wineTitle);
+
+            Console.WriteLine("Retrieved documents:");
+
+            foreach (var doc in documents)
+            {
+                Console.WriteLine(doc);
+                // Create an update definition to set the new key-value pair
+                var updateDefinition = Builders<BsonDocument>.Update.Set("wine_image_url", wineImageUrl);
+
+                // Update the document in the collection
+                var updateResult = collection.UpdateOne(
+                    Builders<BsonDocument>.Filter.Eq("_id", doc["_id"]),
+                    updateDefinition);
+            }
+            
+        }
+
+
 
         public async Task getWineInfoByCharacteristics(string[] inputCharacteristics)
         {
@@ -300,7 +376,8 @@ namespace WineInformationApp
             using (var cursor = await collection.FindAsync(filter, options))
             {
                 List<string> inputCharacteristicsToLower = new List<string>();
-                foreach(string characteristic in inputCharacteristics){
+                foreach (string characteristic in inputCharacteristics)
+                {
                     inputCharacteristicsToLower.Add(characteristic.ToLower());
                 }
 
@@ -311,7 +388,7 @@ namespace WineInformationApp
                     {
                         var wineDescription = doc["description"].AsString.ToLower();
                         var wineName = doc["title"].AsString;
-                        
+
                         foreach (var inputChar in inputCharacteristicsToLower)
                         {
                             if (wineDescription.Contains(inputChar))
@@ -323,7 +400,7 @@ namespace WineInformationApp
                     }
                 }
             }
-        }   
+        }
 
 
         public async Task getWineInfoByTitle(string inputWineTitle)
@@ -349,7 +426,7 @@ namespace WineInformationApp
                         var wineTitle = doc["title"].AsString;
                         var stringPoints = doc["points"].AsString;
                         var points = int.Parse(stringPoints);
-                        
+
                         foreach (var inputTitle in inputWineTitleList)
                         {
                             if (wineTitle.Contains(inputWineTitle) && points >= 90)
@@ -361,7 +438,66 @@ namespace WineInformationApp
                     }
                 }
             }
-        }   
+        }
+    }
+
+    public class DataCollector
+    {
+
+        public static string apiKey;
+        public string searchEngineId;
+
+        public string ApiKey { get; set; }
+        public string SearchEngineId { get; set; }
+
+        ///the data collector is using a custom search google api
+        ///which has the limit of 100 queries per day
+        public DataCollector()
+        {
+            DotNetEnv.Env.Load();
+            DotNetEnv.Env.TraversePath().Load();
+            // apiKey = DotNetEnv.Env.GetString("API_KEY", "API_KEY not found");
+            ApiKey = DotNetEnv.Env.GetString("API_KEY", "API_KEY not found");
+            SearchEngineId = DotNetEnv.Env.GetString("SEARCH_ENGINE_ID", "SEARCH_ENGINE_ID not found");
+            // searchEngineId = DotNetEnv.Env.GetString("SEARCH_ENGINE_ID", "SEARCH_ENGINE_ID not found");
+        }
+        public static async Task<string> GetGoogleImageURL(string query, string apiKey, string searchEngineId)
+        {
+            var httpClient = new HttpClient();
+            var url = $"https://www.googleapis.com/customsearch/v1?key={apiKey}&cx={searchEngineId}&searchType=image&q={Uri.EscapeDataString(query)}";
+
+            var response = await httpClient.GetAsync(url);
+            var responseContent = await response.Content.ReadAsStringAsync();
+
+            string imageUrl = "not found";
+            dynamic jsonResponse = JsonConvert.DeserializeObject(responseContent);
+
+            if (jsonResponse != null && jsonResponse.items != null && jsonResponse.items.Count > 0)
+            {
+                imageUrl = jsonResponse.items[0].link;
+            }
+
+            Console.WriteLine(imageUrl);
+            return imageUrl;
+        }
+
+
+        public static async Task<string> FindWineBottleImageUrl(string wineBottleTitle)
+        {
+            DotNetEnv.Env.Load();
+            DotNetEnv.Env.TraversePath().Load();
+
+            string query = wineBottleTitle;
+            string apiKey = "AIzaSyBdbft4ywkNETFfAhUWStBe55rMGXRShRE";
+            // string apiKey = DotNetEnv.Env.GetString("API_KEY", "API_KEY not found");
+            string searchEngineId = "d05d323f7eabb4b62";
+            // string searchEngineId = DotNetEnv.Env.GetString("SEARCH_ENGINE_ID", "SEARCH_ENGINE_ID not found");
+
+            string imageUrl = await GetGoogleImageURL(query, apiKey, searchEngineId);
+
+            Console.WriteLine("Image URL: " + imageUrl);
+            return imageUrl;
+        }
     }
 }
 
