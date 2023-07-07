@@ -454,12 +454,11 @@ namespace WineInformationApp
         ///which has the limit of 100 queries per day
         public DataCollector()
         {
-            DotNetEnv.Env.Load();
-            DotNetEnv.Env.TraversePath().Load();
-            // apiKey = DotNetEnv.Env.GetString("API_KEY", "API_KEY not found");
-            ApiKey = DotNetEnv.Env.GetString("API_KEY", "API_KEY not found");
-            SearchEngineId = DotNetEnv.Env.GetString("SEARCH_ENGINE_ID", "SEARCH_ENGINE_ID not found");
-            // searchEngineId = DotNetEnv.Env.GetString("SEARCH_ENGINE_ID", "SEARCH_ENGINE_ID not found");
+            Env.Load();
+
+            // Get API key and search engine ID from environment variables
+            apiKey = Env.GetString("API_KEY");
+            searchEngineId = Env.GetString("SEARCH_ENGINE_ID");
         }
         public static async Task<string> GetGoogleImageURL(string query, string apiKey, string searchEngineId)
         {
@@ -484,14 +483,13 @@ namespace WineInformationApp
 
         public static async Task<string> FindWineBottleImageUrl(string wineBottleTitle)
         {
-            DotNetEnv.Env.Load();
-            DotNetEnv.Env.TraversePath().Load();
+            Env.Load();
+
+            // Get API key and search engine ID from environment variables
+            string apiKey = Env.GetString("API_KEY");
+            string searchEngineId = Env.GetString("SEARCH_ENGINE_ID");
 
             string query = wineBottleTitle;
-            string apiKey = "AIzaSyBdbft4ywkNETFfAhUWStBe55rMGXRShRE";
-            // string apiKey = DotNetEnv.Env.GetString("API_KEY", "API_KEY not found");
-            string searchEngineId = "d05d323f7eabb4b62";
-            // string searchEngineId = DotNetEnv.Env.GetString("SEARCH_ENGINE_ID", "SEARCH_ENGINE_ID not found");
 
             string imageUrl = await GetGoogleImageURL(query, apiKey, searchEngineId);
 
