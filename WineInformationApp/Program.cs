@@ -8,7 +8,17 @@ using DotNetEnv;
 using Humanizer;
 using System.Net.Http;
 using Newtonsoft.Json;
-
+using Microsoft.Bot.Builder;
+using Microsoft.Bot.Builder.Integration.AspNet.Core;
+using Microsoft.Bot.Connector.Authentication;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace WineInformationApp
 {
@@ -57,9 +67,9 @@ namespace WineInformationApp
             // createDataBaseGate2.getWineInfoByCharacteristics(searchFilter).Wait();
 
             // createDataBaseGate2.getWineInfoByTitle("Chardonnay").Wait();
-            // Task.Run(async () => await DataCollector.FindWineBottleImageUrl("Terre di Giurfo 2011 Mascaria Barricato  (Cerasuolo di Vittoria)")).Wait();
+            Task.Run(async () => await DataCollector.FindWineBottleImageUrl("Terre di Giurfo 2011 Mascaria Barricato  (Cerasuolo di Vittoria)")).Wait();
 
-            Task.Run(async () => await createDataBaseGate2.UpdateSingleWineImageUrlAsync("Terre di Giurfo 2011 Mascaria Barricato  (Cerasuolo di Vittoria)")).Wait();
+            // Task.Run(async () => await createDataBaseGate2.UpdateSingleWineImageUrlAsync("Louis M. Martini 2012 Cabernet Sauvignon (Alexander Valley)")).Wait();
 
             // Console.WriteLine("Name the characteristics you would like in your wine and hit enter:");
             // String desiredCharacteristics = Console.ReadLine();
@@ -347,7 +357,7 @@ namespace WineInformationApp
             // Retrieve documents from the collection
             var filter = Builders<BsonDocument>.Filter.Eq("title", $"{wineTitle}");
             var documents = collection.Find(filter).ToList();
-            var wineImageUrl = DataCollector.FindWineBottleImageUrl(wineTitle);
+            string wineImageUrl = await DataCollector.FindWineBottleImageUrl(wineTitle);
 
             Console.WriteLine("Retrieved documents:");
 
@@ -497,5 +507,59 @@ namespace WineInformationApp
             return imageUrl;
         }
     }
+
+
+    // public class SimpleChatBot : ActivityHandler
+    // {
+    //     protected override async Task OnMessageActivityAsync(ITurnContext<Microsoft.Bot.Schema.IMessageActivity> turnContext, CancellationToken cancellationToken)
+    //     {
+    //         // Get the user's message
+    //         string userMessage = turnContext.Activity.Text.ToLower();
+
+    //         // Define the bot's response
+    //         string botResponse = "Hello! How can I assist you?";
+
+    //         // Check the user's message and provide an appropriate response
+    //         if (userMessage.Contains("hello"))
+    //         {
+    //             botResponse = "Hi there!";
+    //         }
+    //         else if (userMessage.Contains("bye"))
+    //         {
+    //             botResponse = "Goodbye! Have a great day!";
+    //         }
+
+    //         // Send the response back to the user
+    //         await turnContext.SendActivityAsync(MessageFactory.Text(botResponse), cancellationToken);
+    //     }
+    // }
+
+    // public class Startup
+    // {
+    //     public IConfiguration Configuration { get; }
+
+    //     public Startup(IConfiguration configuration)
+    //     {
+    //         Configuration = configuration;
+    //     }
+
+    //     public void ConfigureServices(IServiceCollection services)
+    //     {
+    //         services.AddMvc().SetCompatibilityVersion(Microsoft.AspNetCore.Mvc.CompatibilityVersion.Version_2_1);
+
+    //         services.AddSingleton<IBotFrameworkHttpAdapter, BotFrameworkHttpAdapter>();
+
+    //         services.AddSingleton<BotFrameworkHttpAdapter>();
+
+    //         services.AddTransient<IBot, SimpleChatBot>();
+    //     }
+
+    //     public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+    //     {
+    //         app.UseMvc();
+    //     }
+    // }
+
+
 }
 
